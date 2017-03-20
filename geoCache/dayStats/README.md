@@ -1,0 +1,1 @@
+This folder contains one file for each day of NewsScape recordings, summarizing the places mentioned in the news that day. These files are processed by the ProcessDayStats.py script to generate .json output files that the NewsSCOPE Javascript code uses to populate the interface.
