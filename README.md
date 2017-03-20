@@ -7,7 +7,7 @@ NewsSCOPE: Tools for geospatial analysis and visualization of places in the news
 - Checks whether location data about the place is already cached in geoCache/locations/ or geoCache/noplaces/. If the data is already in the former location, it uses this data; in the latter case it ignores the place reference.
 - If there is no cached data about this place name, the script queries a local GIS server to find prospective matches for the place name. Currently, the script queries a local Gisgraphy server using its public full-text search API (http://www.gisgraphy.com/documentation/api/#!/fulltext_-_autocomplete). It caches the resulting data and then adds the info about the top-level match for the place name to the daily places mentioned statistics.
 - When a full day has been processed, the script writes its summary places mentioned statistics to the geoCache/dayStats/ folder.
-2. The ProcessDayStats.py script loops through each per-day places mentioned stats file in geoCache/dayStats/ and, after doing some basic data refinements, outputs JSON data files for each day, month, and year to the json/ folder. These files are used by the index.html and newsscope.js code when populating the display.
+2. The ProcessDayStats.py script loops through each per-day places mentioned stats file in geoCache/dayStats/ and, after doing some basic data refinements, outputs JSON data files for each day, month, and year to the json/ folder. These files are used by the index.html and newsscope.js code when populating the front-end interface.
 
 # Front-end interface
 
