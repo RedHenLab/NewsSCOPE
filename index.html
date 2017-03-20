@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="ext/bootstrap/img/favicon.ico">
+
+    <title>NewsSCOPE</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="ext/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Slider CSS -->
+    <link href="ext/noUiSlider/nouislider.min.css" rel="stylesheet">
+    <link href="ext/noUiSlider/nouislider_custom.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="ext/bootstrap/css/dashboard.css" rel="stylesheet">
+    <link href="ext/bootstrap/css/awesome-bootstrap-checkbox.css" rel="stylesheet">
+    <link href="ext/bootstrap/css/font-awesome.css" rel="stylesheet">
+
+    <!-- map styles -->
+    <style>
+      #wrapper {
+          width: 960px;
+          margin: -30px auto 0;
+      }
+      #map {
+          width: 960px;
+          height: 580px;
+          position: relative;
+      }
+      .stroke {
+        fill: none;
+        stroke: #888;
+        stroke-width: 2px;
+      }
+      
+      .fill {
+        fill: #fff;
+      }
+      
+      .graticule {
+        fill: none;
+        stroke: #777;
+        stroke-width: .5px;
+        stroke-opacity: .5;
+      }
+      
+      .land {
+        fill: #222;
+      }
+      
+      .boundary {
+        fill: none;
+        stroke: #fff;
+        stroke-width: .5px;
+      }
+      .country {
+          fill: white;
+          stroke: black;
+      }
+      #play {
+        position: relative;
+        right: 15px;
+        left: 0px;
+      }
+    .geoPoint:hover {
+        fill: #666;
+    }
+    .hidden {
+        display: none;
+    }
+    div.tooltip {
+        color: #222;
+        background-color: #fff;
+        padding: .5em;
+        text-shadow: #f5f5f5 0 1px 0;
+        border-radius: 2px;
+        opacity: 0.9;
+        position: absolute;
+    }
+
+    </style>
+
+  </head>
+
+  <body onload="initialize();">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">NewsSCOPE</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" onClick="toggleHelp()">Toggle docs</a></li>
+            <li><a target="blank" href="http://library.ucla.edu"><img height="20" src="img/logo.png"></a></li>
+         </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <fieldset>
+            <div><h4>Timeline and map</h4></div>
+            <div id="clockWrapper">
+              <button id="play">Play</button>
+              <button id="back">Back</button>
+              <button id="fwd">Fwd</button>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="pointsToggle" name="pointsToggle" onClick="togglePoints(this)" checked>
+              <label for="pointsToggle">Show place points</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="countryCentroidToggle" name="countryCentroidToggle" onClick="toggleCentroids(this)">
+              <label for="countryCentroidToggle">Show country points</label>
+            </div>
+            <div>
+              <label for="thresholdSlider">
+                Place count threshold: <span id="threshold-value">0</span>
+              </label><br>
+              <input type="range" min="0" max="100" value="0" id="thresholdSlider" step="1" onInput="updateThreshold(this)">
+            </div>
+            <div><h5>Timeline granularity</h5></div>
+            <div class="checkbox">
+              <input type="checkbox" id="daily" name="daily" onClick="changeTimelineGranularity(this)" checked>
+              <label for="daily">Days</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="monthly" name="monthly" onClick="changeTimelineGranularity(this)">
+              <label for="monthly">Months</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="yearly" name="yearly" onClick="changeTimelineGranularity(this)">
+              <label for="yearly">Years</label>
+            </div>
+            <!-- This is too slow for now
+            <div class="checkbox">
+              <input type="checkbox" id="rangeSliderToggle" name="rangeSliderToggle" onClick="toggleRange(this)">
+              <label for="rangeSliderToggle">Enable date range</label>
+            </div>
+            -->
+            <!-- <legend>Indices</legend> -->
+            <div><h4>Networks</h4></div>
+            <div class="checkbox">
+              <input type="checkbox" id="allNetworksToggle" name="allNetworksToggle" onClick="toggleAllNetworks(this)" checked>
+              <label for="allNetworksToggle">Select all networks</label>
+            </div>
+            <div><h5>US Cable</h5></div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_CNN" name="CNN" onClick="networkClicked(this)" checked>
+              <label for="US_CNN">CNN</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_FOX-News" name="FOX-News" onClick="networkClicked(this)" checked>
+              <label for="US_FOX-News">Fox News</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_MSNBC" name="MSNBC" onClick="networkClicked(this)" checked>
+              <label for="US_MSNBC">MSNBC</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_AlJazeera" name="AlJazeera" onClick="networkClicked(this)" checked>
+              <label for="US_AlJazeera">Al Jazeera America</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_WWW" name="WWW" onClick="networkClicked(this)" checked>
+              <label for="US_WWW">Democracy Now</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_HLN" name="HLN" onClick="networkClicked(this)" checked>
+              <label for="US_HLN">HLN/Headline News</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_ComedyCentral" name="ComedyCentral" onClick="networkClicked(this)" checked>
+              <label for="US_ComedyCentral">Comedy Central</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_CSPAN" name="CSPAN" onClick="networkClicked(this)" checked>
+              <label for="US_CSPAN">C-SPAN</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_Current" name="Current" onClick="networkClicked(this)" checked>
+              <label for="US_Current">Current TV</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_HBO" name="HBO" onClick="networkClicked(this)" checked>
+              <label for="US_HBO">HBO</label>
+            </div>
+            <div><h5>Asia</h5></div>
+            <div class="checkbox">
+              <input type="checkbox" id="QA_AlJazeera" name="AlJazeera" onClick="networkClicked(this)" checked>
+              <label for="QA_AlJazeera">Al Jazeera (Qatar)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="JP_KCET" name="NHK" onClick="networkClicked(this)" checked>
+              <label for="JP_KCET">NHK World (Japan)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="IL_KCET" name="IBA" onClick="networkClicked(this)" checked>
+              <label for="IL_KCET">IBA World (Israel)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="RU_WWW" name="WWW" onClick="networkClicked(this)" checked>
+              <label for="RU_WWW">RT (Russia)</label>
+            </div>
+            <div><h5>Europe</h5></div>
+            <div class="checkbox">
+              <input type="checkbox" id="UK_KCET" name="BBC" onClick="networkClicked(this)" checked>
+              <label for="UK_KCET">BBC World</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="FR_KCET" name="France24" onClick="networkClicked(this)" checked>
+              <label for="FR_KCET">France 24</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="DE_KCET" name="DeutscheWelle" onClick="networkClicked(this)" checked>
+              <label for="DE_KCET">Deutsche Welle (Germany)</label>
+            </div>
+            <div><h5>Los Angeles</h5></div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KABC" name="KABC" onClick="networkClicked(this)" checked>
+              <label for="US_KABC">KABC</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KCAL" name="KCAL" onClick="networkClicked(this)" checked>
+              <label for="US_KCAL">KCAL (independent)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KCBS" name="KCBS" onClick="networkClicked(this)" checked>
+              <label for="US_KCBS">KCBS</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KCET" name="KCET" onClick="networkClicked(this)" checked>
+              <label for="US_KCET">KCET (independent)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KOCE" name="KOCE" onClick="networkClicked(this)" checked>
+              <label for="US_KOCE">KOCE (PBS)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KNBC" name="KNBC" onClick="networkClicked(this)" checked>
+              <label for="US_KNBC">KNBC</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KTLA" name="KTLA" onClick="networkClicked(this)" checked>
+              <label for="US_KTLA">KTLA (CW)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_KTTV-FOX" name="KTTV" onClick="networkClicked(this)" checked>
+              <label for="US_KTTV-FOX">KTTV (Fox)</label>
+            </div>
+            <div><h5>Cleveland, Ohio</h5></div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_WEWS" name="WEWS" onClick="networkClicked(this)" checked>
+              <label for="US_WEWS">WEWS (ABC)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_WKYC" name="WKYC" onClick="networkClicked(this)" checked>
+              <label for="US_WKYC">WKYC (NBC)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_WOIO" name="WOIO" onClick="networkClicked(this)" checked>
+              <label for="US_WOIO">WOIO (CBS)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="US_WUAB" name="WUAB" onClick="networkClicked(this)" checked>
+              <label for="US_WUAB">WUAB (MyNetworkTV)</label>
+            </div>
+            <!--
+            <div class="checkbox">
+              <input type="checkbox" id="SE_SVT1" name="SVT1" onClick="networkClicked(this)" checked>
+              <label for="SE_SVT1">SVT1 (Sweden)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="FR_France-3" name="France-3" onClick="networkClicked(this)" checked>
+              <label for="FR_France-3">France-3</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="DE_Tagesschau24" name="Tagesschau24" onClick="networkClicked(this)" checked>
+              <label for="DE_Tagesschau24">Tagesschau24 (Germany)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="DE_DasErste" name="DasErste" onClick="networkClicked(this)" checked>
+              <label for="DE_DasErste">Das Erste (Germany)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="DE_ZDF" name="ZDF" onClick="networkClicked(this)" checked>
+              <label for="DE_ZDF">ZDF (Germany)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="BR_SIC" name="SIC" onClick="networkClicked(this)" checked>
+              <label for="BR_SIC">SIC (Brazil)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="ES_La-1" name="LA-1" onClick="networkClicked(this)" checked>
+              <label for="SES_La-1">La-1 (Spain)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="PT_RTP-1" name="RTP-1" onClick="networkClicked(this)" checked>
+              <label for="PT_RTP-1">RTP-1 (Portugal)</label>
+            </div>
+            <div class="checkbox">
+              <input type="checkbox" id="CH_TV5" name="TV5" onClick="networkClicked(this)" checked>
+              <label for="CH_TV5">TV5 (Czech Republic)</label>
+            </div>
+            -->
+          </fieldset>
+        </div>
+        <div class="col-sm-offset-3 col-md-offset-2 col-sm-9 col-md-10">
+          <div class="row" id="contentpane">
+            <div id="timelineDiv" class="col-sm-9 col-md-10">
+              <div id="timelineWrapper" style="height: 100px;">
+                <div id="date-values"></div>
+                <div id="slider-date"</div>
+              </div>
+            </div>
+            <div id="mapDiv" class="col-sm-9 col-md-10">
+              <div id="map_wrapper">  
+                <div id="map"></div>
+              </div>
+            </div>
+            <div id="urlDiv" class="col-sm-9 col-md-10">
+              <div id="linkDiv"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="ext/jquery-2.2.1.min.js"></script>
+    <script src="ext/bootstrap/js/bootstrap.min.js"></script>
+    <script src="ext/d3.min.js"></script>
+    <script src="ext/d3.geo.projection.v0.min.js"></script>
+    <script src="ext/topojson.v1.min.js"></script>
+    <script src="ext/queue.v1.min.js"></script>
+    <script src="ext/wnumb/wNumb.js"></script>
+    <script src="ext/noUiSlider/nouislider.min.js"></script>
+    <script src="ext/bootstrap/assets/ie10-viewport-bug-workaround.js"></script>
+    <script src="newsscope.js"></script>
+  </body>
+</html>
