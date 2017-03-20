@@ -57,7 +57,7 @@ acceptablePlaceTypes = ['GisFeature', 'Adm', 'AdmBuilding', 'Airport', 'AmusePar
 def recordDayStats(day):
   # When the script begins processing .seg files for a new day, record the
   # stats for the previous day. These will be processed later by
-  # processDayStats.py to be converted into .json files that the NewsSCOPE
+  # ProcessDayStats.py to be converted into .json files that the NewsSCOPE
   # interface can use.
 
   global dayPlaces, dayNetworkPlaces
