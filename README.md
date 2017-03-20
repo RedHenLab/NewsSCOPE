@@ -1,6 +1,4 @@
-##NewsSCOPE
-
-Tools for geospatial analysis and visualization of places in the news
+NewsSCOPE: Tools for geospatial analysis and visualization of places in the news
 
 # Back-end processing workflow
 
